@@ -20,7 +20,7 @@ class EventController extends Controller
             $service = $dispatcher->getParam('service');
             $method = $dispatcher->getParam('method');
             $services = $config->get('ngEvent.available.services');
-            $result = property_exists($services, $service) && in_array($method, $services->$service);
+            $result = !is_null($services) && property_exists($services, $service) && in_array($method, $services->$service);
         }
 
 
