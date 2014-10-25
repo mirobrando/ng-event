@@ -10,7 +10,7 @@
     ],
     "autoload": {
 	"psr-0": {
-	    "mirolabs\phalcon\modules\ngEvent": "."
+	    "mirolabs\\phalcon\\modules\\ngEvent": "."
 	}
     },
     "minimum-stability": "dev",
