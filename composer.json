@@ -1,0 +1,27 @@
+{
+    "name": "mirolabs/ng-event",
+    "description": "module for ng-phalcon which call backend services",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "mirobrando",
+            "email": "mirobrando@wp.pl"
+        }
+    ],
+    "autoload": {
+	"psr-0": {
+	    "mirolabs": "./src/"
+	}
+    },
+    "minimum-stability": "dev",
+    "require": {
+	"php": ">=5.4",
+	"mirolabs/ng-phalcon": "dev-master"
+    },
+    "repositories": [
+	{
+	    "type": "git",
+	    "url": "https://github.com/mirobrando/ng-phalcon.git"
+	}
+    ]
+}
