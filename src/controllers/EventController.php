@@ -2,7 +2,7 @@
 
 namespace mirolabs\phalcon\modules\ngEvent\controllers;
 
-use ngEvent\exceptions\ValidateException;
+use mirolabs\phalcon\modules\ngEvent\exceptions\ValidateException;
 use Phalcon\Mvc\Controller;
 
 class EventController extends Controller
@@ -118,7 +118,7 @@ class EventController extends Controller
         } catch(ValidateException $e) {
             $this->response
                 ->setStatusCode(409, 'Conflict')
-                ->setJsonContent($e->getErrorValidete())
+                ->setJsonContent($e->getErrorValidate())
                 ->send();
 
         } catch (\Exception $e) {
@@ -147,7 +147,7 @@ class EventController extends Controller
         } catch(ValidateException $e) {
             $this->response
                 ->setStatusCode(409, 'Conflict')
-                ->setJsonContent($e->getErrorValidete())
+                ->setJsonContent($e->getErrorValidate())
                 ->send();
 
         } catch (\Exception $e) {

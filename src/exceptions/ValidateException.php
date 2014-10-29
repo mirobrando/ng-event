@@ -6,20 +6,20 @@ use Phalcon\Exception;
 
 class ValidateException extends Exception
 {
-    private $errorValidete;
+    private $errorValidate;
 
     public function __construct($errorValidate, $code = 0, \Exception $previous = null)
     {
-        $this->errorValidete = $errorValidate;
+        $this->errorValidate = $errorValidate;
         parent::__construct('conflict in object', $code, $previous);
     }
 
     /**
      * @return mixed
      */
-    public function getErrorValidete()
+    public function getErrorValidate()
     {
-        return $this->errorValidete;
+        return $this->errorValidate;
     }
 
 
