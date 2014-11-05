@@ -5,6 +5,7 @@ angular.module(ngAppName)
         return {
             restrict: 'A',
             scope: {
+                before: '&mlEventBefore',
                 callback: '&mlEventCallback',
                 callbackError: '&mlEventCallbackError',
                 param: '=mlEventParam'
@@ -13,6 +14,9 @@ angular.module(ngAppName)
                 var event = attrs.mlEvent;
 
                 elem.on('click', function () {
+                    if (scope.before) {
+                        scope.before();
+                    }
                     eventApi.callFire(event, scope.param).then(
                         function() {
                             scope.callback();
@@ -29,6 +33,7 @@ angular.module(ngAppName)
         return {
             restrict: 'A',
             scope: {
+                before: '&mlEventGetBefore',
                 callback: '&mlEventGetCallback',
                 callbackError: '&mlEventGetCallbackError',
                 params: '=mlEventGetParam'
@@ -38,6 +43,9 @@ angular.module(ngAppName)
                 var method = attrs.mlEventGetMethod;
 
                 elem.on('click', function () {
+                    if (scope.before) {
+                        scope.before();
+                    }
                     eventApi.getData(service, method, scope.params).then(
                         function(data) {
                             scope.callback({data: data.message});
@@ -54,6 +62,7 @@ angular.module(ngAppName)
     return {
         restrict: 'A',
         scope: {
+            before: '&mlEventQueryBefore',
             callback: '&mlEventQueryCallback',
             callbackError: '&mlEventQueryCallbackError',
             params: '=mlEventQueryParam'
@@ -63,6 +72,10 @@ angular.module(ngAppName)
             var method = attrs.mlEventQueryMethod;
 
             elem.on('click', function () {
+                if (scope.before) {
+                    scope.before();
+                }
+
                 eventApi.getDataQuery(service, method, scope.params).then(
                     function(data) {
                         scope.callback({data: data});
@@ -79,6 +92,7 @@ angular.module(ngAppName)
         return {
             restrict: 'A',
             scope: {
+                before: '&mlEventPostBefore',
                 callback: '&mlEventPostCallback',
                 callbackValidate: '&mlEventPostCallbackValidate',
                 callbackError: '&mlEventPostCallbackError',
@@ -89,6 +103,9 @@ angular.module(ngAppName)
                 var method = attrs.mlEventPostMethod;
 
                 elem.on('click', function () {
+                    if (scope.before) {
+                        scope.before();
+                    }
                     eventApi.sendPost(service, method, scope.params).then(
                         function(data) {
                             scope.callback({data: data});
@@ -109,6 +126,7 @@ angular.module(ngAppName)
         return {
             restrict: 'A',
             scope: {
+                before: '&mlEventPutBefore',
                 callback: '&mlEventPutCallback',
                 callbackValidate: '&mlEventPutCallbackValidate',
                 callbackError: '&mlEventPutCallbackError',
@@ -119,6 +137,9 @@ angular.module(ngAppName)
                 var method = attrs.mlEventPutMethod;
 
                 elem.on('click', function () {
+                    if (scope.before) {
+                        scope.before();
+                    }
                     eventApi.sendPut(service, method, scope.params).then(
                         function(data) {
                             scope.callback({data: data});
@@ -139,6 +160,7 @@ angular.module(ngAppName)
         return {
             restrict: 'A',
             scope: {
+                before: '&mlEventDeleteBefore',
                 callback: '&mlEventDeleteCallback',
                 callbackError: '&mlEventDeleteCallbackError',
                 params: '=mlEventPutParam'
@@ -148,6 +170,9 @@ angular.module(ngAppName)
                 var method = attrs.mlEventDeleteMethod;
 
                 elem.on('click', function () {
+                    if (scope.before) {
+                        scope.before();
+                    }
                     eventApi.sendDelete(service, method, scope.params).then(
                         function() {
                             scope.callback();
