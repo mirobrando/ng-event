@@ -2,6 +2,7 @@
 
 namespace mirolabs\phalcon\modules\ngEvent\controllers;
 
+use mirolabs\phalcon\modules\ngEvent\api\Model;
 use mirolabs\phalcon\modules\ngEvent\exceptions\ValidateException;
 use Phalcon\Mvc\Controller;
 
@@ -64,7 +65,7 @@ class EventController extends Controller
             $serviceObj = $this->getDI()->get($service);
             $data = call_user_func_array([$serviceObj, $method], $params);
 
-            $this->response->setJsonContent(['message' => $data]);
+            $this->response->setJsonContent($this->getData($data));
             $this->response->send();
         } catch (\Exception $e) {
             $this->response->setStatusCode(400, 'Bad Request');
@@ -90,7 +91,7 @@ class EventController extends Controller
                 throw new \Exception('Invalid response');
             }
 
-            $this->response->setJsonContent($data);
+            $this->response->setJsonContent($this->getData($data));
             $this->response->send();
 
         } catch (\Exception $e) {
@@ -112,7 +113,7 @@ class EventController extends Controller
 
             $this->response
                 ->setStatusCode(201, 'Created')
-                ->setJsonContent($result)
+                ->setJsonContent($this->getData($result))
                 ->send();
 
         } catch(ValidateException $e) {
@@ -141,7 +142,7 @@ class EventController extends Controller
 
             $this->response
                 ->setStatusCode(201, 'Created')
-                ->setJsonContent($result)
+                ->setJsonContent($this->getData($result))
                 ->send();
 
         } catch(ValidateException $e) {
@@ -172,5 +173,18 @@ class EventController extends Controller
                 ->setStatusCode(400, 'Bad Request')
                 ->send();
         }
+    }
+
+    private function getData($data)
+    {
+        if ($data instanceof Model) {
+            return $data->toArray();
+        }
+
+        if (is_string($data)) {
+            return ['message' => $data];
+        }
+
+        return $data;
     }
 }
