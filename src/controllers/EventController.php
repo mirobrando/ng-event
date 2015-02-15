@@ -105,7 +105,11 @@ class EventController extends Controller
     {
         try {
             $body = $this->request->getJsonRawBody();
-            $result = $this->getDI()->get($service)->$method($body->param);
+            if (is_array($body->param)) {
+                $result = call_user_func_array([$this->getDI()->get($service), $method], $body->param);
+            } else {
+                $result = $this->getDI()->get($service)->$method($body->param);
+            }
 
             if (!is_object($result)) {
                 throw new \Exception('Invalid response');
@@ -134,7 +138,11 @@ class EventController extends Controller
     {
         try {
             $body = $this->request->getJsonRawBody();
-            $result = $this->getDI()->get($service)->$method($body);
+            if (is_array($body->param)) {
+                $result = call_user_func_array([$this->getDI()->get($service), $method], $body->param);
+            } else {
+                $result = $this->getDI()->get($service)->$method($body->param);
+            }
 
             if (!is_object($result)) {
                 throw new \Exception('Invalid response');
@@ -162,7 +170,11 @@ class EventController extends Controller
     {
         try {
             $body = $this->request->getJsonRawBody();
-            $this->getDI()->get($service)->$method($body->param);
+            if (is_array($body->param)) {
+                call_user_func_array([$this->getDI()->get($service), $method], $body->param);
+            } else {
+                $this->getDI()->get($service)->$method($body->param);
+            }
 
             $this->response
                 ->setStatusCode(204, 'No Content')
