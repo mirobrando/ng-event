@@ -16,6 +16,6 @@
     "minimum-stability": "dev",
     "require": {
 	"php": ">=5.4",
-	"mirolabs/ng-phalcon": ">=0.4.0"
+	"mirolabs/ng-phalcon": ">=0.4.6"
     }
 }
