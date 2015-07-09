@@ -64,10 +64,15 @@ class EventController extends Controller
             }
             $serviceObj = $this->getDI()->get($service);
             $data = call_user_func_array([$serviceObj, $method], $params);
-
-            $this->response->setJsonContent($this->getData($data));
+            $serializer = \JMS\Serializer\SerializerBuilder::create()->build();
+            $jsonContent = $serializer->serialize($data, 'json');
+            $this->response->setContent($jsonContent);
             $this->response->send();
+
+            
         } catch (\Exception $e) {
+            prex($e);
+
             $this->response->setStatusCode(400, 'Bad Request');
             $this->response->send();
         }
@@ -91,7 +96,10 @@ class EventController extends Controller
                 throw new \Exception('Invalid response');
             }
 
-            $this->response->setJsonContent($this->getData($data));
+            
+            $serializer = \JMS\Serializer\SerializerBuilder::create()->build();
+            $jsonContent = $serializer->serialize($data, 'json');
+            $this->response->setContent($jsonContent);
             $this->response->send();
 
         } catch (\Exception $e) {
@@ -105,19 +113,22 @@ class EventController extends Controller
     {
         try {
             $body = $this->request->getJsonRawBody();
+
             if (is_array($body->param)) {
                 $result = call_user_func_array([$this->getDI()->get($service), $method], $body->param);
             } else {
                 $result = $this->getDI()->get($service)->$method($body->param);
             }
-
             if (!is_object($result)) {
                 throw new \Exception('Invalid response');
             }
 
+            $serializer = \JMS\Serializer\SerializerBuilder::create()->build();
+            $jsonContent = $serializer->serialize($this->getData($result), 'json');
+
             $this->response
                 ->setStatusCode(201, 'Created')
-                ->setJsonContent($this->getData($result))
+                ->setContent($jsonContent)
                 ->send();
 
         } catch(ValidateException $e) {
@@ -148,9 +159,12 @@ class EventController extends Controller
                 throw new \Exception('Invalid response');
             }
 
+            $serializer = \JMS\Serializer\SerializerBuilder::create()->build();
+            $jsonContent = $serializer->serialize($this->getData($result), 'json');
+
             $this->response
-                ->setStatusCode(201, 'Created')
-                ->setJsonContent($this->getData($result))
+                ->setStatusCode(200, 'OK')
+                ->setContent($jsonContent)
                 ->send();
 
         } catch(ValidateException $e) {
