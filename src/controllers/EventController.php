@@ -124,7 +124,7 @@ class EventController extends Controller
             }
 
             $serializer = \JMS\Serializer\SerializerBuilder::create()->build();
-            $jsonContent = $serializer->serialize($this->getData($result), 'json');
+            $jsonContent = $serializer->serialize($result, 'json');
 
             $this->response
                 ->setStatusCode(201, 'Created')
@@ -160,7 +160,7 @@ class EventController extends Controller
             }
 
             $serializer = \JMS\Serializer\SerializerBuilder::create()->build();
-            $jsonContent = $serializer->serialize($this->getData($result), 'json');
+            $jsonContent = $serializer->serialize($result, 'json');
 
             $this->response
                 ->setStatusCode(200, 'OK')
