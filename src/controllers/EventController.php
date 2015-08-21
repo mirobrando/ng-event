@@ -71,8 +71,6 @@ class EventController extends Controller
 
             
         } catch (\Exception $e) {
-            prex($e);
-
             $this->response->setStatusCode(400, 'Bad Request');
             $this->response->send();
         }
