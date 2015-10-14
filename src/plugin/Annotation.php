@@ -35,7 +35,7 @@ class Annotation implements \mirolabs\phalcon\Framework\Compile\Plugin {
         return $this->config;
     }
 
-    public function setConfig(Phalcon\Config $config) {
+    public function setConfig(\Phalcon\Config $config) {
         $this->config = $config;
     }    
     
@@ -50,8 +50,11 @@ class Annotation implements \mirolabs\phalcon\Framework\Compile\Plugin {
         $file = "<?php\n\n";
         $file .= "\tfunction _availableEvents() {\n";
         $file .= "\t\treturn [\n";
-        $file .= implode(",\n", $this->services->map(function(NgEvent $model){return $model->getEvents();})->toArray());
-        $file .= "\t\t];\n";
+        $file .= implode(",\n", $this->services
+                ->map(function(NgEvent $model){return $model->getEvents();})
+                ->filter(function($data) {return strlen($data) > 0;})
+                ->toArray());
+        $file .= "\n\t\t];\n";
         $file .= "\n\t}\n";
         file_put_contents($cacheDir . self::CACHE_FILE, $file);
     }

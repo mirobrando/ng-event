@@ -5,7 +5,7 @@ namespace mirolabs\phalcon\modules\ngEvent\services;
 use JMS\Serializer\SerializerBuilder;
 
 /**
- * @Service(name='jms')
+ * @Service('jms')
  */
 class Jms {
 

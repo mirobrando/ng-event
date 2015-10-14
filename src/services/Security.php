@@ -7,7 +7,7 @@ use mirolabs\phalcon\Framework\Container\Load;
 use mirolabs\phalcon\modules\ngEvent\plugin\Annotation;
 
 /**
- * @Service(name='ngEvent.security')
+ * @Service('ngEvent.security')
  */
 class Security {
 
@@ -46,7 +46,7 @@ class Security {
     }
     
     public function getEventDefifition($service, $method) {
-        if (array_key_exists($service, $this->securityTable)) {
+        if (array_key_exists($service, $this->getSecurityTable())) {
             foreach ($this->securityTable[$service] as $data) {
                 if ($data['method'] == $method) {
                     return $data;

@@ -62,7 +62,7 @@ class EventController extends Controller {
      * @param type $language
      * @param type $service
      * @param type $method
-     * @Route(path=/{language:[a-z]{2}}/event/get/{service}/{method}, method=GET)
+     * @Route(path='/{language:[a-z]{2}}/event/get/{service}/{method}', method=GET)
      */
     public function getAction($language, $service, $method) {
           try {
@@ -91,7 +91,7 @@ class EventController extends Controller {
      * @param type $language
      * @param type $service
      * @param type $method
-     * @Route(path=/{language:[a-z]{2}}/event/query/{service}/{method}, method=GET)
+     * @Route(path='/{language:[a-z]{2}}/event/query/{service}/{method}', method=GET)
      */
     public function queryAction($language, $service, $method)
     {
@@ -125,23 +125,19 @@ class EventController extends Controller {
      * @param type $language
      * @param type $service
      * @param type $method
-     * @Route(path=/{language:[a-z]{2}}/event/{service}/{method}, method=POST)
+     * @Route(path='/{language:[a-z]{2}}/event/{service}/{method}', method=POST)
      */
     public function postAction($language, $service, $method) {
         try {
-            $body = $this->request->getJsonRawBody();
-
-            if (is_array($body->param)) {
-                $result = call_user_func_array([$this->getDI()->get($service), $method], $body->param);
+            $param = $this->getParam($service, $method);
+            if (is_array($param)) {
+                $result = call_user_func_array([$this->getDI()->get($service), $method], $param);
             } else {
-                $result = $this->getDI()->get($service)->$method($body->param);
+                $result = $this->getDI()->get($service)->$method($param);
             }
             if (!is_object($result)) {
                 throw new \Exception('Invalid response');
             }
-
-            $serializer = \JMS\Serializer\SerializerBuilder::create()->build();
-            $jsonContent = $serializer->serialize($result, 'json');
 
             $this->response
                 ->setStatusCode(201, 'Created')
@@ -168,7 +164,7 @@ class EventController extends Controller {
      * @param type $language
      * @param type $service
      * @param type $method
-     * @Route(path=/{language:[a-z]{2}}/event/{service}/{method}, method=PUT)
+     * @Route(path='/{language:[a-z]{2}}/event/{service}/{method}', method=PUT)
      */
     public function putAction($language, $service, $method)
     {
@@ -208,7 +204,7 @@ class EventController extends Controller {
      * @param type $language
      * @param type $service
      * @param type $method
-     * @Route(path=/{language:[a-z]{2}}/event/{service}/{method}, method=DELETE)
+     * @Route(path='/{language:[a-z]{2}}/event/{service}/{method}', method=DELETE)
      */
     public function deleteAction($language, $service, $method)
     {
@@ -245,11 +241,12 @@ class EventController extends Controller {
         return $data;
     }
     
-    private function getParam($service, $method, $body) {
+    private function getParam($service, $method) {
+        $body = $this->request->getJsonRawBody();
         $paramType = $this->security->getParamType($service, $method);
         if ($paramType != '') {
-            return $this->jms->deserializeJson($body, $paramType);
+            return $this->jms->deserializeJson(json_encode($body->param), $paramType);
         }
-        return $body;
+        return $body->param;
     }
 }

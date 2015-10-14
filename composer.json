@@ -16,7 +16,7 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=5.4",
-        "mirolabs/ng-phalcon": "~0.8.1",
+        "mirolabs/ng-phalcon": "~0.8.2",
         "jms/serializer": "dev-master"
     }
 }

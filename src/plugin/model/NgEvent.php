@@ -7,7 +7,7 @@ use mirolabs\phalcon\modules\ngEvent\plugin\Annotation as PluginAnnotation;
 use mirolabs\phalcon\Framework\Logger;
 use mirolabs\collection\ArrayList;
 
-class NgEvent extends \mirolabs\phalcon\Framework\Container\Parser\Model\Service {
+class NgEvent extends \mirolabs\phalcon\Framework\Compile\Plugin\Model\Service {
     
     
     public function getEvents() {
@@ -20,9 +20,9 @@ class NgEvent extends \mirolabs\phalcon\Framework\Container\Parser\Model\Service
             $result[] = sprintf("\t\t\t\t['method'=>'%s','param' => '%s']", $method, $param);
         }
         if (count($result)) {
-            $cache = sprintf("\t\t\t['%s'] => [\n", $this->getServiceName());
+            $cache = sprintf("\t\t\t'%s' => [\n", $this->getServiceName());
             $cache .= implode(",\n", $result);
-            $cache .= "\t\t\t]";
+            $cache .= "\n\t\t\t]";
             return $cache;
         }
         return "";
