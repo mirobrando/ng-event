@@ -2,30 +2,35 @@
 
 namespace mirolabs\phalcon\modules\ngEvent\controllers;
 
+use mirolabs\phalcon\Framework\Logger;
+use mirolabs\phalcon\Framework\Module\Controller;
 use mirolabs\phalcon\modules\ngEvent\api\Model;
 use mirolabs\phalcon\modules\ngEvent\exceptions\ValidateException;
-use Phalcon\Mvc\Controller;
 
-class EventController extends Controller
-{
+/**
+ * @Controller
+ */
+class EventController extends Controller {
 
-    public function beforeExecuteRoute($dispatcher)
-    {
-        $config = $this->getDI()->get('config');
-        $result = true;
-        if ($dispatcher->getActionName() == 'fire') {
-            $events = $config->get('ngEvent.available.events');
-            $body = $this->request->getJsonRawBody();
-            $result = in_array($body->eventName, $events);
-        } else {
-            $service = $dispatcher->getParam('service');
-            $method = $dispatcher->getParam('method');
-            $services = $config->get('ngEvent.available.services');
-            $result = !is_null($services) && property_exists($services, $service) && in_array($method, $services->$service);
-        }
+ 
+    /**
+     * @Inject(service="ngEvent.security")
+     * @var \mirolabs\phalcon\modules\ngEvent\services\Security;
+     */
+    protected $security;
 
-
-        if (!$result) {
+    /**
+     * @Inject(service="jms")
+     * @var \mirolabs\phalcon\modules\ngEvent\services\Jms;
+     */
+    protected $jms;
+    
+    
+    public function beforeExecuteRoute($dispatcher) {
+        $service = $dispatcher->getParam('service');
+        $method = $dispatcher->getParam('method');
+        if (!$this->security->checkAccess($service, $method)) {
+            Logger::getInstance()->warning('ngEvent: service %s and method %s not available', $service, $method);
             $this->response->setStatusCode(400, 'Bad Request');
             $this->response->send();
             return false;
@@ -33,8 +38,9 @@ class EventController extends Controller
     }
 
 
-    public function fireAction()
-    {
+    public function fireAction() {
+        /**
+        
         try {
             $body = $this->request->getJsonRawBody();
             $param = null;
@@ -48,12 +54,18 @@ class EventController extends Controller
             $this->response->setStatusCode(406, 'Not Acceptable');
             $this->response->send();
         }
+        */
     }
 
-
-    public function getAction($language, $service, $method)
-    {
-        try {
+    /**
+     * 
+     * @param type $language
+     * @param type $service
+     * @param type $method
+     * @Route(path=/{language:[a-z]{2}}/event/get/{service}/{method}, method=GET)
+     */
+    public function getAction($language, $service, $method) {
+          try {
             $params = [];
             foreach (array_keys($_GET) as $key) {
                 if ($key == '_url') {
@@ -64,18 +76,23 @@ class EventController extends Controller
             }
             $serviceObj = $this->getDI()->get($service);
             $data = call_user_func_array([$serviceObj, $method], $params);
-            $serializer = \JMS\Serializer\SerializerBuilder::create()->build();
-            $jsonContent = $serializer->serialize($data, 'json');
-            $this->response->setContent($jsonContent);
+            $this->response->setContent($this->jms->serializeJson($data));
             $this->response->send();
-
-            
         } catch (\Exception $e) {
+            Logger::getInstance()->warning('ngEvent (GET) error: %s', $e->getMessage());
             $this->response->setStatusCode(400, 'Bad Request');
             $this->response->send();
         }
     }
 
+    
+    /**
+     * 
+     * @param type $language
+     * @param type $service
+     * @param type $method
+     * @Route(path=/{language:[a-z]{2}}/event/query/{service}/{method}, method=GET)
+     */
     public function queryAction($language, $service, $method)
     {
         try {
@@ -89,26 +106,28 @@ class EventController extends Controller
             }
             $serviceObj = $this->getDI()->get($service);
             $data = call_user_func_array([$serviceObj, $method], $params);
-
             if (!is_array($data)) {
                 throw new \Exception('Invalid response');
             }
-
-            
-            $serializer = \JMS\Serializer\SerializerBuilder::create()->build();
-            $jsonContent = $serializer->serialize($data, 'json');
-            $this->response->setContent($jsonContent);
+            $this->response->setContent($this->jms->serializeJson($data));
             $this->response->send();
 
         } catch (\Exception $e) {
+            Logger::getInstance()->warning('ngEvent (QUERY) error: %s', $e->getMessage());
             $this->response->setStatusCode(400, 'Bad Request');
             $this->response->send();
         }
     }
 
 
-    public function postAction($language, $service, $method)
-    {
+    /**
+     * 
+     * @param type $language
+     * @param type $service
+     * @param type $method
+     * @Route(path=/{language:[a-z]{2}}/event/{service}/{method}, method=POST)
+     */
+    public function postAction($language, $service, $method) {
         try {
             $body = $this->request->getJsonRawBody();
 
@@ -126,7 +145,7 @@ class EventController extends Controller
 
             $this->response
                 ->setStatusCode(201, 'Created')
-                ->setContent($jsonContent)
+                ->setContent($this->jms->serializeJson($result))
                 ->send();
 
         } catch(ValidateException $e) {
@@ -136,6 +155,7 @@ class EventController extends Controller
                 ->send();
 
         } catch (\Exception $e) {
+            Logger::getInstance()->warning('ngEvent (POST) error: %s', $e->getMessage());
             $this->response
                 ->setStatusCode(400, 'Bad Request')
                 ->send();
@@ -143,6 +163,13 @@ class EventController extends Controller
     }
 
 
+    /**
+     * 
+     * @param type $language
+     * @param type $service
+     * @param type $method
+     * @Route(path=/{language:[a-z]{2}}/event/{service}/{method}, method=PUT)
+     */
     public function putAction($language, $service, $method)
     {
         try {
@@ -157,12 +184,9 @@ class EventController extends Controller
                 throw new \Exception('Invalid response');
             }
 
-            $serializer = \JMS\Serializer\SerializerBuilder::create()->build();
-            $jsonContent = $serializer->serialize($result, 'json');
-
             $this->response
                 ->setStatusCode(200, 'OK')
-                ->setContent($jsonContent)
+                ->setContent($this->jms->serializeJson($result))
                 ->send();
 
         } catch(ValidateException $e) {
@@ -172,12 +196,20 @@ class EventController extends Controller
                 ->send();
 
         } catch (\Exception $e) {
+            Logger::getInstance()->warning('ngEvent (PUT) error: %s', $e->getMessage());
             $this->response
                 ->setStatusCode(400, 'Bad Request')
                 ->send();
         }
     }
 
+    /**
+     * 
+     * @param type $language
+     * @param type $service
+     * @param type $method
+     * @Route(path=/{language:[a-z]{2}}/event/{service}/{method}, method=DELETE)
+     */
     public function deleteAction($language, $service, $method)
     {
         try {
@@ -193,6 +225,7 @@ class EventController extends Controller
                 ->send();
 
         } catch (\Exception $e) {
+            Logger::getInstance()->warning('ngEvent (DELETE) error: %s', $e->getMessage());
             $this->response
                 ->setStatusCode(400, 'Bad Request')
                 ->send();
@@ -210,5 +243,13 @@ class EventController extends Controller
         }
 
         return $data;
+    }
+    
+    private function getParam($service, $method, $body) {
+        $paramType = $this->security->getParamType($service, $method);
+        if ($paramType != '') {
+            return $this->jms->deserializeJson($body, $paramType);
+        }
+        return $body;
     }
 }
